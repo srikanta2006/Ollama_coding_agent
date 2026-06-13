@@ -15,15 +15,19 @@ Make sure you have the following installed on your system:
 
 ## Setup
 
-First, ensure your Python virtual environment in `backend/venv` is correctly configured with all required backend dependencies (like `fastapi`, `uvicorn`, `torch`, `transformers`, etc.).
+We have created an automated setup script that installs all dependencies across the entire project (frontend, backend, and root). 
 
-Then, install the root dependencies which will allow you to run both the frontend and backend concurrently:
+Simply run the following command from the root directory:
 
 ```bash
-npm install
+npm run setup
 ```
 
-*(Note: You will also need to run `npm install` inside the `frontend` folder if you haven't already).*
+This will automatically:
+1. Install root dependencies.
+2. Install React frontend dependencies.
+3. Create a Python virtual environment in `backend/venv` (if it doesn't exist).
+4. Install all Python dependencies from `backend/requirements.txt`.
 
 ## How to Run
 

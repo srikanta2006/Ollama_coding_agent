@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Pipeline to run both frontend and backend concurrently",
   "scripts": {
+    "setup": "npm install && npm install --prefix frontend && cd backend && python -m venv venv && .\\venv\\Scripts\\python -m pip install -r requirements.txt",
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "start:frontend": "npm start --prefix frontend",
     "start:backend": "cd backend && .\\venv\\Scripts\\python -m uvicorn api:app --reload --port 8000"
