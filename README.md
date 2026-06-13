@@ -1,5 +1,7 @@
 # Zap AI - Intelligent Coding Assistant
 
+![Hero Screen](docs/hero.png)
+
 Zap AI is a full-stack, locally-hosted AI coding companion designed to provide developers with instant programming assistance. Powered by a fine-tuned TinyLlama model, it offers a secure, offline alternative to cloud-based APIs without compromising on the user experience.
 
 ---
@@ -23,6 +25,8 @@ The application is built on a decoupled, modern architecture:
 ---
 
 ## ✨ Key Features
+
+![Chat Interface](docs/chat.png)
 
 - **Premium UI/UX:** A stunning, industry-grade interface featuring frosted glass sidebars, dynamic hover states, glowing gradients, and animated typing indicators.
 - **Persistent Chat History:** Conversations are automatically saved to browser `localStorage`. Users can seamlessly switch between past sessions, start new chats, or delete individual history records.
