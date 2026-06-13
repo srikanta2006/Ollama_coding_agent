@@ -45,8 +45,26 @@ function App() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [backendReady, setBackendReady] = useState(false);
 
   const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    let interval;
+    if (!backendReady) {
+      interval = setInterval(async () => {
+        try {
+          const res = await fetch("http://127.0.0.1:8000/");
+          if (res.ok) {
+            setBackendReady(true);
+          }
+        } catch (e) {
+          // Keep polling
+        }
+      }, 2000);
+    }
+    return () => clearInterval(interval);
+  }, [backendReady]);
 
   const suggestions = [
     "Explain Binary Search",
@@ -148,6 +166,17 @@ function App() {
 
   return (
     <div className="app">
+      {!backendReady && (
+        <div className="loading-overlay">
+          <div className="hero-icon typing" style={{ justifyContent: "center", marginBottom: "20px" }}>
+            <span style={{ width: "16px", height: "16px" }}></span>
+            <span style={{ width: "16px", height: "16px" }}></span>
+            <span style={{ width: "16px", height: "16px" }}></span>
+          </div>
+          <h2>Connecting to server...</h2>
+          <p>Please wait while the AI backend loads.</p>
+        </div>
+      )}
       {/* Sidebar */}
 
       <aside className="sidebar">
