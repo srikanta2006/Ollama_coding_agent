@@ -44,6 +44,11 @@ function CodeBlock({ inline, className, children }) {
 function App() {
   const [message, setMessage] = useState("");
   const [chat, setChat] = useState([]);
+  const [pastChats, setPastChats] = useState(() => {
+    const saved = localStorage.getItem("zapAiPastChats");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [currentChatId, setCurrentChatId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [backendReady, setBackendReady] = useState(false);
 
@@ -65,6 +70,48 @@ function App() {
     }
     return () => clearInterval(interval);
   }, [backendReady]);
+
+  useEffect(() => {
+    if (chat.length === 0) return;
+
+    setPastChats((prev) => {
+      let updated;
+      if (!currentChatId) {
+        const newId = Date.now().toString();
+        setCurrentChatId(newId);
+        updated = [{ id: newId, title: chat[0].text, messages: chat }, ...prev];
+      } else {
+        updated = prev.map((c) =>
+          c.id === currentChatId ? { ...c, messages: chat } : c
+        );
+      }
+      localStorage.setItem("zapAiPastChats", JSON.stringify(updated));
+      return updated;
+    });
+  }, [chat, currentChatId]);
+
+  const handleNewChat = () => {
+    setChat([]);
+    setCurrentChatId(null);
+  };
+
+  const loadChat = (chatItem) => {
+    setCurrentChatId(chatItem.id);
+    setChat(chatItem.messages);
+  };
+
+  const deleteChat = (e, chatId) => {
+    e.stopPropagation();
+    setPastChats((prev) => {
+      const updated = prev.filter((c) => c.id !== chatId);
+      localStorage.setItem("zapAiPastChats", JSON.stringify(updated));
+      return updated;
+    });
+    if (currentChatId === chatId) {
+      setChat([]);
+      setCurrentChatId(null);
+    }
+  };
 
   const suggestions = [
     "Explain Binary Search",
@@ -168,13 +215,13 @@ function App() {
     <div className="app">
       {!backendReady && (
         <div className="loading-overlay">
-          <div className="hero-icon typing" style={{ justifyContent: "center", marginBottom: "20px" }}>
-            <span style={{ width: "16px", height: "16px" }}></span>
-            <span style={{ width: "16px", height: "16px" }}></span>
-            <span style={{ width: "16px", height: "16px" }}></span>
+          <div className="typing" style={{ justifyContent: "center", marginBottom: "24px" }}>
+            <span style={{ width: "12px", height: "12px" }}></span>
+            <span style={{ width: "12px", height: "12px" }}></span>
+            <span style={{ width: "12px", height: "12px" }}></span>
           </div>
           <h2>Connecting to server...</h2>
-          <p>Please wait while the AI backend loads.</p>
+          <p>Initializing AI environment and loading models.</p>
         </div>
       )}
       {/* Sidebar */}
@@ -184,31 +231,31 @@ function App() {
           🤖 Zap AI
         </div>
 
-        <button className="new-chat-btn">
+        <button className="new-chat-btn" onClick={handleNewChat}>
           + New Chat
         </button>
 
-        <div className="sidebar-section">
-          <p className="section-title">
-            Recent Chats
-          </p>
-
-          <div className="history-item">
-            ⚛ React Interview
+        {pastChats.length > 0 && (
+          <div className="sidebar-section">
+            <p className="section-title">Recent Chats</p>
+            {pastChats.map(c => (
+              <div 
+                key={c.id} 
+                className={`history-item ${c.id === currentChatId ? 'active' : ''}`}
+                onClick={() => loadChat(c)}
+              >
+                <span>{c.title.length > 22 ? c.title.substring(0, 22) + '...' : c.title}</span>
+                <button 
+                  className="delete-btn" 
+                  onClick={(e) => deleteChat(e, c.id)}
+                  title="Delete Chat"
+                >
+                  🗑
+                </button>
+              </div>
+            ))}
           </div>
-
-          <div className="history-item">
-            🌳 Binary Trees
-          </div>
-
-          <div className="history-item">
-            ☁ System Design
-          </div>
-
-          <div className="history-item">
-            🐍 Python Debugging
-          </div>
-        </div>
+        )}
       </aside>
 
       {/* Main Content */}
@@ -305,9 +352,6 @@ function App() {
         {/* Input */}
 
         <div className="input-wrapper">
-          <button className="icon-btn">
-            📎
-          </button>
 
           <input
             type="text"
@@ -326,10 +370,6 @@ function App() {
               }
             }}
           />
-
-          <button className="icon-btn">
-            🎤
-          </button>
 
           <button
             className="send-btn"
